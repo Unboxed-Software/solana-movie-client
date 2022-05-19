@@ -36,10 +36,11 @@ const movieInstructionLayout = borsh.struct([
 
 async function sendTestMovieReview(signer: web3.Keypair, programId: web3.PublicKey, connection: web3.Connection) {
     let buffer = Buffer.alloc(1000)
+    const movieTitle = `Braveheart${Math.random()*1000000}`
     movieInstructionLayout.encode(
         {
             variant: 0,
-            title: `Braveheart${Math.random()*1000000}`,
+            title: movieTitle,
             rating: 5,
             description: 'A great movie'
         },
@@ -49,9 +50,11 @@ async function sendTestMovieReview(signer: web3.Keypair, programId: web3.PublicK
     buffer = buffer.slice(0, movieInstructionLayout.getSpan(buffer))
 
     const [pda] = await web3.PublicKey.findProgramAddress(
-        [signer.publicKey.toBuffer(), Buffer.from('Braveheart')],
+        [signer.publicKey.toBuffer(), Buffer.from(movieTitle)],
         programId
     )
+
+    console.log("PDA is:", pda.toBase58())
 
     const transaction = new web3.Transaction()
     
@@ -88,7 +91,7 @@ async function main() {
     const connection = new web3.Connection(web3.clusterApiUrl('devnet'))
     await airdropSolIfNeeded(signer, connection)
     
-    const movieProgramId = new web3.PublicKey('HYRXeE8rBBfUqhj37MirJHRWLe427aBVmpfjc7RjESSQ')
+    const movieProgramId = new web3.PublicKey('FnHUUiX2jLSaGdt6GpgoJYKnUxzbPG5VmRPEDr1NEekm')
     await sendTestMovieReview(signer, movieProgramId, connection)
 }
 
